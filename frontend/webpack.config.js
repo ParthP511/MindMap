@@ -6,18 +6,26 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
-        clean: true
+        clean: true,
     },
     resolve: {
-        extensions: ['.ts', '.tsx', '.js']
+        extensions: ['.tsx', '.ts', '.js'],
     },
     module: {
         rules: [
-            { test: /\.(ts|tsx)$/, use: 'ts-loader', exclude: /node_modules/}
-        ]
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            }
+        ],
     },
     plugins: [
-        new HtmlWebpackPlugin({template: './public/index.html'})
+        new HtmlWebpackPlugin({ template: './public/index.html' }),
     ],
     devServer: {
         static: './dist',
@@ -29,5 +37,5 @@ module.exports = {
             },
         },
     },
-    mode: 'development'
-}
+    mode: 'development',
+};

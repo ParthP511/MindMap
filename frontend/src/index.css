@@ -1,0 +1,40 @@
+.tree {
+    list-style: none;
+    margin: 0;
+    padding-left: 2rem;
+    position: relative;
+}
+
+.tree li {
+    position: relative;
+    margin: 1.5rem 0;
+    padding-left: 2rem;
+}
+
+.tree li::before {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    width: 2rem;
+    height: 2px;
+    background: #ccc;
+}
+
+.tree li::after {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: #ccc;
+}
+
+.node-box {
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
