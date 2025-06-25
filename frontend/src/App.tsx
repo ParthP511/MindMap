@@ -43,6 +43,30 @@ const App: React.FC = () => {
         })
         .then(() => fetchNodes());
     };
+
+    const handleDeleteNode = async(id: string) => {
+        await fetch(`/api/nodes/${id}`, {
+            method: 'DELETE',
+        })
+        .then(() => fetchNodes())
+        .catch(err => console.error('Failed to delete node: ', err));
+    };
+
+    const handleEditNode = (id: string, title: string, content: string) => {
+        fetch(`/api/nodes/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                title,
+                content,
+                parentId: null // Assuming parentId is not edited. This might change when we add drag and drop feature.
+            })
+        })
+        .then(() => fetchNodes())
+        .catch((err) => console.error('Failed to edit node: ', err));
+    };
     
     return (
         <div style = {{ padding: '2rem'}}>
@@ -71,7 +95,11 @@ const App: React.FC = () => {
                 />
                 <button type="submit">Add Node</button>
             </form>
-            <MindmapTree nodes={nodes} onAddNode = {handleAddNode} />
+            <MindmapTree 
+                nodes={nodes} 
+                onAddNode = {handleAddNode} 
+                onDeleteNode = {handleDeleteNode} 
+                onEditNode = {handleEditNode}/>
         </div>
     );
 };

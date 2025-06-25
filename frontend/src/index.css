@@ -1,40 +1,48 @@
 .tree {
     list-style: none;
-    margin: 0;
     padding-left: 2rem;
     position: relative;
-}
-
-.tree li {
+  }
+  
+  .tree li {
     position: relative;
-    margin: 1.5rem 0;
-    padding-left: 2rem;
-}
-
-.tree li::before {
-    content: "";
+    padding-left: 1rem;
+  }
+  
+  /* vertical line before each node */
+  .tree li::before {
+    content: '';
     position: absolute;
-    top: 1rem;
+    top: 0;
     left: 0;
-    width: 2rem;
-    height: 2px;
-    background: #ccc;
-}
-
-.tree li::after {
-    content: "";
-    position: absolute;
-    top: 1rem;
-    left: 0;
-    width: 2px;
+    width: 1rem;
     height: 100%;
-    background: #ccc;
-}
-
-.node-box {
+    border-left: 2px solid #ccc;
+  }
+  
+  /* horizontal connector to the node box */
+  .tree li::after {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    width: 1rem;
+    height: 0;
+    border-top: 2px solid #ccc;
+  }
+  
+  /* remove bottom vertical line for the last child */
+  .tree li:last-child::before {
+    height: 1rem;
+  }
+  
+  /* node styling */
+  .tree-node {
     background: #f9f9f9;
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border: 1px solid #ddd;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    position: relative;
+  }
+  

@@ -2,6 +2,12 @@ package com.mindmap.api;
 
 import com.mindmap.dto.MindmapNodeDTO;
 import com.mindmap.model.MindmapNode;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
+
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -9,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 
@@ -16,6 +23,9 @@ import org.bson.types.ObjectId;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MindmapResource {
+
+    @Inject
+    MongoClient mongoClient;
 
     @GET
     public List<MindmapNodeDTO> getAllNodes() {
@@ -39,5 +49,39 @@ public class MindmapResource {
                         ? new ObjectId(dto.parentId) : null;
         node.persist();
         return Response.status(Response.Status.CREATED).entity(node).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response deleteNode(@PathParam("id") String id) {
+        MindmapNode node = MindmapNode.findById(new ObjectId(id));
+
+        if(node == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        System.out.println("In API Method for delete!!!");
+
+        node.delete();
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateNode(@PathParam("id") String id, MindmapNodeDTO dto) {
+        Bson filter = Filters.eq("_id", new ObjectId(id));
+        Bson updates = Updates.combine(Updates.set("title", dto.title),
+        Updates.set("content", dto.content)
+        );
+
+        UpdateResult result = mongoClient
+                                .getDatabase("mindmapdb")
+                                .getCollection("mindmap_nodes")
+                                .updateOne(filter, updates);
+        
+                                return result.getModifiedCount() > 0
+                                        ? Response.noContent().build()
+                                        : Response.status(Response.Status.NOT_FOUND).build();
     }
 }
