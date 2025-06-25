@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bson.conversions.Bson;
@@ -83,5 +84,34 @@ public class MindmapResource {
                                 return result.getModifiedCount() > 0
                                         ? Response.noContent().build()
                                         : Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    @PUT
+    @Path("/{id}/move")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response moveNode(@PathParam("id") String id, Map<String, String> request) {
+        Bson filter = Filters.eq("_id", new ObjectId(id));
+
+        Object parentIdRaw = request.get("parentId");
+        Bson update;
+
+        if(parentIdRaw == null || parentIdRaw.toString().equals("null")) {
+            update = Updates.unset("parentId");
+        } else {
+            try {
+                ObjectId newParentId = new ObjectId(parentIdRaw.toString());
+                update = Updates.set("parentId", newParentId);
+            } catch (IllegalArgumentException e) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("Invalid parentId: must be a valid ObjectId string").build();
+            }
+        }
+
+        UpdateResult result = mongoClient.getDatabase("mindmapdb")
+                                            .getCollection("mindmap_nodes")
+                                            .updateOne(filter, update);
+        
+        return result.getModifiedCount() > 0 ? Response.noContent().build()
+                                                : Response.status(Response.Status.NOT_FOUND).build();
     }
 }
