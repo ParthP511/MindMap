@@ -68,6 +68,19 @@ const App: React.FC = () => {
         .catch((err) => console.error('Failed to edit node: ', err));
     };
     
+    const handleMoveNode = (draggedId: string, targetId: string | null) => {
+        console.log("Calling API to move: ", draggedId, "->", targetId);
+        fetch(`/api/nodes/${draggedId}/move`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ parentId: targetId })
+        })
+        .then(() => {
+            console.log("Refetching nodes...");
+            fetchNodes();
+        });
+    }
+
     return (
         <div style = {{ padding: '2rem'}}>
             <h1>MindMap Viewer</h1>
@@ -99,7 +112,8 @@ const App: React.FC = () => {
                 nodes={nodes} 
                 onAddNode = {handleAddNode} 
                 onDeleteNode = {handleDeleteNode} 
-                onEditNode = {handleEditNode}/>
+                onEditNode = {handleEditNode}
+                onMoveNode = {handleMoveNode}/>
         </div>
     );
 };
