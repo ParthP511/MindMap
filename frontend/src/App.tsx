@@ -67,6 +67,17 @@ const App: React.FC = () => {
         .then(() => fetchNodes())
         .catch((err) => console.error('Failed to edit node: ', err));
     };
+
+    const handleMoveNode = (targetId: string, childId: string | null) => {
+        console.log("Calling API to move: ",  childId, "->", targetId);
+
+        fetch(`/api/nodes/${childId}/move`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ parentId: targetId})
+        })
+        .then(() => fetchNodes());
+    }
     
     return (
         <div style = {{ padding: '2rem'}}>
@@ -99,7 +110,9 @@ const App: React.FC = () => {
                 nodes={nodes} 
                 onAddNode = {handleAddNode} 
                 onDeleteNode = {handleDeleteNode} 
-                onEditNode = {handleEditNode}/>
+                onEditNode = {handleEditNode}
+                onMoveNode = {handleMoveNode}
+                />
         </div>
     );
 };

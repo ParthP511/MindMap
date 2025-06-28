@@ -1,26 +1,61 @@
 import React from 'react';
 import { MindmapNode } from '../models/MindmapNode';
 
+
 interface MindmapTreeProps {
     nodes: MindmapNode[];
     parentId?: string | null;
     onAddNode: (newNode: { title: string; content: string; parentId: string | null }) => void;
     onDeleteNode: (id: string) => void;
     onEditNode: (id: string, title: string, content: string) => void;
+    onMoveNode: (draggedId: string, targetId: string | null) => void;
 }
 
 
-const MindmapTree: React.FC<MindmapTreeProps> = ({ nodes, parentId = null, onAddNode, onDeleteNode, onEditNode}) => {
+const MindmapTree: React.FC<MindmapTreeProps> = ({ 
+    nodes, 
+    parentId = null, 
+    onAddNode, 
+    onDeleteNode, 
+    onEditNode, 
+    onMoveNode}) => {
     const children = nodes.filter(node => node.parentId === parentId);
 
     return (
         <ul className="tree">
             {children.map(child => (
-                <li key={child.id}>
-                <div className="tree-node">
+                <li 
+                    key={child.id}
+                    draggable
+                    onDragStart={(e) => {
+                        e.stopPropagation();
+                        if(child.id) {
+                            // console.log('conosle setting child node',child.id)
+                            e.dataTransfer.setData("text/plain", child.id);
+                        }
+                    }}
+                    
+                    onDragOver = {(e) => {e.preventDefault()
+                  }
+
+                    }
+                    onDrop={(e) => {
+                        e.stopPropagation();
+                        const childId = e.dataTransfer.getData('text/plain');
+                        const targetId = child.id
+                        console.log('target->>>',targetId,"child->>>",childId)
+                        if(targetId && childId !== child.id) {
+                            onMoveNode(targetId, childId ?? null);
+                        }
+                        return;
+                    }
+                }
+                >
+                <div className="tree-node" >
                     <strong>{child.title}</strong>
                     <p>{child.content}</p>
                     <small>ID: {child.id}</small>
+
                     <button onClick={() => {
                     const title = prompt("Enter child node title: ");
                     const content = prompt("Enter child node content: ");
@@ -49,6 +84,7 @@ const MindmapTree: React.FC<MindmapTreeProps> = ({ nodes, parentId = null, onAdd
                     onAddNode={onAddNode} 
                     onDeleteNode={onDeleteNode}
                     onEditNode = {onEditNode}
+                    onMoveNode = {onMoveNode}
                     />
                 </li>
             ))}

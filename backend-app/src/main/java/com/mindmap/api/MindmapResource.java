@@ -106,7 +106,7 @@ public class MindmapResource {
                             .entity("Invalid parentId: must be a valid ObjectId string").build();
             }
         }
-
+        
         UpdateResult result = mongoClient.getDatabase("mindmapdb")
                                             .getCollection("mindmap_nodes")
                                             .updateOne(filter, update);
