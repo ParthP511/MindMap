@@ -11,7 +11,6 @@ interface MindmapTreeProps {
     onMoveNode: (draggedId: string, targetId: string | null) => void;
 }
 
-
 const MindmapTree: React.FC<MindmapTreeProps> = ({ 
     nodes, 
     parentId = null, 
@@ -20,24 +19,6 @@ const MindmapTree: React.FC<MindmapTreeProps> = ({
     onEditNode, 
     onMoveNode}) => {
     const children = nodes.filter(node => node.parentId === parentId);
-
-    const handleDragStart = (e: React.DragEvent<HTMLLIElement>, draggedId: string) => {
-        console.log("Drag started: draggedId = ", draggedId);
-        e.dataTransfer.setData("text/plain", draggedId);
-    };
-
-    const handleDrop = (e: React.DragEvent<HTMLLIElement>, targetId: string | null) => {
-        console.log("Drop fired: " ,"target Id = ", targetId);
-        e.preventDefault();
-        const draggedId = e.dataTransfer.getData("text/plain");
-        if (draggedId && draggedId !== targetId && onMoveNode) {
-            onMoveNode(draggedId, targetId);
-        }
-    };
-
-    const allowDrop = (e: React.DragEvent<HTMLLIElement>) => {
-        e.preventDefault();
-    };
 
     return (
         <ul className="tree">
@@ -48,7 +29,6 @@ const MindmapTree: React.FC<MindmapTreeProps> = ({
                     onDragStart={(e) => {
                         e.stopPropagation();
                         if(child.id) {
-                            // console.log('conosle setting child node',child.id)
                             e.dataTransfer.setData("text/plain", child.id);
                         }
                     }}
@@ -61,6 +41,26 @@ const MindmapTree: React.FC<MindmapTreeProps> = ({
                         e.stopPropagation();
                         const childId = e.dataTransfer.getData('text/plain');
                         const targetId = child.id
+
+                        const getDescendants = (nodeId: string) : string[] => {
+                            const directChildren = nodes.filter(n => n.parentId === nodeId);
+                            return directChildren.reduce<string[]>(
+                                (acc, curr) => 
+                                    curr.id ? 
+                                        acc.concat([curr.id], getDescendants(curr.id))
+                                        : acc,
+                                []
+                            );
+                        };
+
+                        if(childId === targetId)  return;
+
+                        const descendants = getDescendants(childId);
+                        if(descendants.includes(targetId!)) {
+                            alert("❌ Cannot move a node into one of its descendants!");
+                            return;
+                        }
+
                         console.log('target->>>',targetId,"child->>>",childId)
                         if(targetId && childId !== child.id) {
                             onMoveNode(targetId, childId ?? null);
